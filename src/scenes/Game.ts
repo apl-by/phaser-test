@@ -7,23 +7,13 @@ export default class Game extends Phaser.Scene {
   private bullets: Phaser.Physics.Arcade.Group | undefined;
   private platforms: Phaser.Physics.Arcade.StaticGroup | undefined;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
-  private score: number;
-  private gameOver: boolean;
   private scoreText: Phaser.GameObjects.Text | undefined;
-  private timeStamp: number;
+  private score: number = 0;
+  private gameOver: boolean = false;
+  private timeStamp: number = Date.now();
 
   constructor() {
     super("game");
-    this.player = undefined;
-    this.stars = undefined;
-    this.bombs = undefined;
-    this.bullets = undefined;
-    this.platforms = undefined;
-    this.cursors = undefined;
-    this.score = 0;
-    this.gameOver = false;
-    this.scoreText = undefined;
-    this.timeStamp = Date.now();
   }
   init() {
     this.player = undefined;

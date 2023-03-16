@@ -25,6 +25,18 @@ export default class Game extends Phaser.Scene {
     this.scoreText = undefined;
     this.timeStamp = Date.now();
   }
+  init() {
+    this.player = undefined;
+    this.stars = undefined;
+    this.bombs = undefined;
+    this.bullets = undefined;
+    this.platforms = undefined;
+    this.cursors = undefined;
+    this.score = 0;
+    this.gameOver = false;
+    this.scoreText = undefined;
+    this.timeStamp = Date.now();
+  }
 
   preload() {
     this.load.image("sky", "assets/sky.png");
@@ -144,6 +156,7 @@ export default class Game extends Phaser.Scene {
       undefined,
       this
     );
+    console.log(this);
   }
 
   update() {
@@ -231,7 +244,7 @@ export default class Game extends Phaser.Scene {
     this.gameOver = true;
 
     this.time.delayedCall(1000, () => {
-      this.scene.restart();
+      this.scene.resume("game");
       this.scene.start("start-screen");
     });
   }

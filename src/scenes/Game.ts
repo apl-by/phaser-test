@@ -250,8 +250,7 @@ export default class Game extends Phaser.Scene {
       // Check if the body's game object is the bullet you are listening for
       if (body.gameObject === bullet) {
         // Stop physics and render updates for this object
-        bullet.setActive(false);
-        bullet.setVisible(false);
+        bullet.disableBody(true, true);
       }
     });
     if (direction === "left") {

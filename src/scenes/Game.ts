@@ -156,7 +156,6 @@ export default class Game extends Phaser.Scene {
       undefined,
       this
     );
-    console.log(this);
   }
 
   update() {

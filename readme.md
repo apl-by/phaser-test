@@ -12,7 +12,7 @@
 Скачать и установить приложение:
 
 ```bash
-git clone
+git clone https://github.com/apl-by/phaser-test.git
 ```
 
 ```bash

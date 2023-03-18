@@ -1,17 +1,23 @@
-
 {
   "compilerOptions": {
     "sourceMap": true,
     "strict": true,
-    "noImplicitReturns": true,
     "noImplicitAny": true,
-    "module": "es6",
+    "noImplicitReturns": true,
+    "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "target": "es5",
     "allowJs": true,
     "baseUrl": ".",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/phaser/types"
+    ],
+    "types": [
+      "Phaser"
+    ]
   },
   "include": [
     "./index.d.ts",

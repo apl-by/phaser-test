@@ -1,13 +1,14 @@
 import "phaser";
 
 export default class Game extends Phaser.Scene {
-  private player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
-  private stars: Phaser.Physics.Arcade.Group | undefined;
-  private bombs: Phaser.Physics.Arcade.Group | undefined;
-  private bullets: Phaser.Physics.Arcade.Group | undefined;
-  private platforms: Phaser.Physics.Arcade.StaticGroup | undefined;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
-  private scoreText: Phaser.GameObjects.Text | undefined;
+  private player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null =
+    null;
+  private stars: Phaser.Physics.Arcade.Group | null = null;
+  private bombs: Phaser.Physics.Arcade.Group | null = null;
+  private bullets: Phaser.Physics.Arcade.Group | null = null;
+  private platforms: Phaser.Physics.Arcade.StaticGroup | null = null;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
+  private scoreText: Phaser.GameObjects.Text | null = null;
   private score: number = 0;
   private gameOver: boolean = false;
   private timeStamp: number = Date.now();
@@ -15,20 +16,20 @@ export default class Game extends Phaser.Scene {
   constructor() {
     super("game");
   }
-  init() {
-    this.player = undefined;
-    this.stars = undefined;
-    this.bombs = undefined;
-    this.bullets = undefined;
-    this.platforms = undefined;
-    this.cursors = undefined;
+  protected init(): void {
+    this.player = null;
+    this.stars = null;
+    this.bombs = null;
+    this.bullets = null;
+    this.platforms = null;
+    this.cursors = null;
+    this.scoreText = null;
     this.score = 0;
     this.gameOver = false;
-    this.scoreText = undefined;
     this.timeStamp = Date.now();
   }
 
-  preload() {
+  public preload(): void {
     this.load.image("sky", "assets/sky.png");
     this.load.image("ground", "assets/platform.png");
     this.load.image("star", "assets/star.png");
@@ -40,10 +41,9 @@ export default class Game extends Phaser.Scene {
     });
   }
 
-  create() {
+  public create(): void {
     //  A simple background for our game
     this.add.image(400, 300, "sky");
-
     //  The platforms group contains the ground and the 2 ledges we can jump on
     this.platforms = this.physics.add.staticGroup();
 
@@ -104,7 +104,6 @@ export default class Game extends Phaser.Scene {
     this.bombs = this.physics.add.group();
     this.bullets = this.physics.add.group({
       allowGravity: false,
-      runChildUpdate: true,
     });
 
     //  The score
@@ -116,11 +115,7 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.stars, this.platforms);
     this.physics.add.collider(this.bombs, this.platforms);
-    this.physics.add.collider(
-      this.bullets,
-      this.platforms,
-      this.getOutWorld as any
-    );
+    this.physics.add.collider(this.bullets, this.platforms, this.getOutWorld);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     this.physics.add.overlap(
@@ -142,16 +137,23 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(
       this.player,
       this.bombs,
-      this.hitBomb as any,
+      this.hitBomb,
       undefined,
       this
     );
   }
 
-  update() {
+  public update(): void {
     if (!this.cursors || !this.player) return;
     if (this.gameOver) return;
 
+    if (this.cursors.up.isDown && this.player.body.touching.down) {
+      if (this.cursors.space.isDown) {
+        this.createBullet("up");
+      }
+      this.player.setVelocityY(-330);
+      return;
+    }
     if (this.cursors.left.isDown) {
       if (this.cursors.space.isDown) {
         this.createBullet("left");
@@ -169,13 +171,7 @@ export default class Game extends Phaser.Scene {
 
       return;
     }
-    if (this.cursors.up.isDown && this.player.body.touching.down) {
-      if (this.cursors.space.isDown) {
-        this.createBullet("up");
-      }
-      this.player.setVelocityY(-330);
-      return;
-    }
+
     if (this.cursors.space.isDown) {
       this.createBullet("up");
     }
@@ -183,10 +179,10 @@ export default class Game extends Phaser.Scene {
     this.player.anims.play("turn");
   }
 
-  collectStar(
+  private collectStar(
     player: Phaser.Types.Physics.Arcade.GameObjectWithBody,
     star: Phaser.GameObjects.GameObject
-  ) {
+  ): void {
     if (!this.scoreText || !this.stars || !this.bombs) return;
 
     (star as Phaser.Physics.Arcade.Sprite).disableBody(true, true);
@@ -220,15 +216,19 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  hitBomb(
-    player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody,
-    bomb: any
-  ) {
+  private hitBomb(
+    player: Phaser.GameObjects.GameObject,
+    bomb: Phaser.GameObjects.GameObject
+  ): void {
     this.physics.pause();
 
-    player.setTint(0xff0000);
+    (player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody).setTint(
+      0xff0000
+    );
 
-    player.anims.play("turn");
+    (player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody).anims.play(
+      "turn"
+    );
 
     this.gameOver = true;
 
@@ -238,7 +238,7 @@ export default class Game extends Phaser.Scene {
     });
   }
 
-  createBullet(direction: string) {
+  private createBullet(direction: "left" | "right" | "up"): void {
     if (!this.bullets || !this.player || !this.scoreText) return;
     if (this.score === 0) return;
     const currentTimeStamp = Date.now();
@@ -270,12 +270,18 @@ export default class Game extends Phaser.Scene {
     this.scoreText.setText("Score: " + this.score);
   }
 
-  getOutWorld(bullet: any, platforms: any) {
-    bullet.disableBody(true, true);
+  private getOutWorld(
+    bullet: Phaser.GameObjects.GameObject,
+    platforms: Phaser.GameObjects.GameObject
+  ): void {
+    (bullet as Phaser.Physics.Arcade.Sprite).disableBody(true, true);
   }
 
-  dissapear(bomb: any, bullet: any) {
-    bomb.disableBody(true, true);
-    bullet.disableBody(true, true);
+  dissapear(
+    bomb: Phaser.GameObjects.GameObject,
+    bullet: Phaser.GameObjects.GameObject
+  ) {
+    (bomb as Phaser.Physics.Arcade.Sprite).disableBody(true, true);
+    (bullet as Phaser.Physics.Arcade.Sprite).disableBody(true, true);
   }
 }
